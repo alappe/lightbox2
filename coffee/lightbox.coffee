@@ -106,40 +106,38 @@ class Lightbox
 
   # Show overlay and lightbox. If the image is part of a set, add siblings to album array.
   start: ($link) ->
-    $('select, object, embed').css visibility: "hidden"
-    $('#lightboxOverlay')
-      .fadeIn( @options.fadeDuration )
+    $('select, object, embed').css visibility: 'hidden'
+    $('#lightboxOverlay').fadeIn @options.fadeDuration
 
     @album = []
     imageNumber = 0
 
-    if $link.attr('rel') == 'lightbox'
+    if $link.attr('rel') is 'lightbox'
       # If image is not part of a set
       @album.push link: $link.attr('href'), title: $link.attr('title')
     else
       # Image is part of a set
       for a, i in $( $link.prop("tagName") + '[rel="' + $link.attr('rel') + '"]')
         @album.push link: $(a).attr('href'), title: $(a).attr('title')
-        if $(a).attr('href') == $link.attr('href')
+        if $(a).attr('href') is $link.attr('href')
           imageNumber = i
 
     # Position lightbox 
     $window = $(window)
-    top = $window.scrollTop() + $window.height()/10
+    top = $window.scrollTop() + $window.height() / 10
     left = $window.scrollLeft()
     $lightbox = $('#lightbox')
     $lightbox
       .css
         top: top + 'px'
         left: left + 'px'
-      .fadeIn( @options.fadeDuration)
+      .fadeIn @options.fadeDuration
       
     @changeImage(imageNumber)
     return
 
   # Hide most UI elements in preparation for the animated resizing of the lightbox.
   changeImage: (imageNumber) ->
-    
     @disableKeyboardNav()
     $lightbox = $('#lightbox')
     $image = $lightbox.find('.lb-image')
@@ -147,13 +145,12 @@ class Lightbox
     $('#lightboxOverlay').fadeIn( @options.fadeDuration )
     
     $('.loader').fadeIn 'slow'
-    $lightbox.find('.lb-image, .lb-nav, .lb-prev, .lb-next, .lb-dataContainer, .lb-numbers, .lb-caption').hide()
-
-    $lightbox.find('.lb-outerContainer').addClass 'animating'
+    ($lightbox.find '.lb-image, .lb-nav, .lb-prev, .lb-next, .lb-dataContainer, .lb-numbers, .lb-caption').hide()
+    ($lightbox.find '.lb-outerContainer').addClass 'animating'
     
     # When image to show is preloaded, we send the width and height to sizeContainer()
     preloader = new Image
-    preloader.onload = () =>
+    preloader.onload = =>
       $image.attr 'src', @album[imageNumber].link
       # Bug fix by Andy Scott 
       $image.width = preloader.width
@@ -185,26 +182,26 @@ class Lightbox
     # Animate just the width, just the height, or both, depending on what is different
     if newWidth != oldWidth && newHeight != oldHeight
       $outerContainer.animate
-        width: newWidth,
-        height: newHeight
-      , @options.resizeDuration, 'swing'
+          width: newWidth,
+          height: newHeight
+        , @options.resizeDuration, 'swing'
     else if newWidth != oldWidth
       $outerContainer.animate
-        width: newWidth
-      , @options.resizeDuration, 'swing'
+          width: newWidth
+        , @options.resizeDuration, 'swing'
     else if newHeight != oldHeight
       $outerContainer.animate
-        height: newHeight
-      , @options.resizeDuration, 'swing'
+          height: newHeight
+        , @options.resizeDuration, 'swing'
 
     # Wait for resize animation to finsh before showing the image
     setTimeout =>
-      $lightbox.find('.lb-dataContainer').width(newWidth)
-      $lightbox.find('.lb-prevLink').height(newHeight)
-      $lightbox.find('.lb-nextLink').height(newHeight)
-      @showImage()
-      return
-    , @options.resizeDuration
+        $lightbox.find('.lb-dataContainer').width(newWidth)
+        $lightbox.find('.lb-prevLink').height(newHeight)
+        $lightbox.find('.lb-nextLink').height(newHeight)
+        @showImage()
+        return
+      , @options.resizeDuration
     
     return
   
