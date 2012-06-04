@@ -12,32 +12,6 @@ Licensed under the Creative Commons Attribution 2.5 License - http://creativecom
 Thanks
 - Scott Upton(uptonic.com), Peter-Paul Koch(quirksmode.com), and Thomas Fuchs(mir.aculo.us) for ideas, libs, and snippets.
 - Artemy Tregubenko (arty.name) for cleanup and help in updating to latest proto-aculous in v2.05.
-
-
-Table of Contents
-=================
-LightboxOptions
-
-Lightbox
-- constructor
-- init
-- enable
-- build
-- start
-- changeImage
-- sizeContainer
-- showImage
-- updateNav
-- updateDetails
-- preloadNeigbhoringImages
-- enableKeyboardNav
-- disableKeyboardNav
-- keyboardAction
-- end
-
-options = new LightboxOptions
-lightbox = new Lightbox options
-
 ###
 
 # Use local alias
