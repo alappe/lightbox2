@@ -1,14 +1,13 @@
 ###
-Lightbox v2.51
-by Lokesh Dhakar - http://www.lokeshdhakar.com
+Lightbox
 
-For more information, visit:
-http://lokeshdhakar.com/projects/lightbox2/
+Based on Lightbox v2.51 by Lokesh Dhakar - http://www.lokeshdhakar.com
+For more information, visit: http://lokeshdhakar.com/projects/lightbox2/
 
 Licensed under the Creative Commons Attribution 2.5 License - http://creativecommons.org/licenses/by/2.5/
 - free for use in both personal and commercial projects
 - attribution requires leaving author name, author link, and the license info intact
-	
+
 Thanks
 - Scott Upton(uptonic.com), Peter-Paul Koch(quirksmode.com), and Thomas Fuchs(mir.aculo.us) for ideas, libs, and snippets.
 - Artemy Tregubenko (arty.name) for cleanup and help in updating to latest proto-aculous in v2.05.
@@ -37,33 +36,33 @@ class Lightbox
   # Build html for the lightbox and the overlay.
   # Attach event handlers to the new DOM elements. click click click
   build: ->
-    $("<div>", id: 'lightboxOverlay' ).after(
-      $('<div/>', id: 'lightbox').append(
-        $('<div/>', class: 'lb-outerContainer').append(
-          $('<div/>', class: 'lb-container').append(
-            $('<img/>', class: 'lb-image'),
-            $('<div/>',class: 'lb-nav').append(
-              $('<a/>', class: 'lb-prev'),
-              $('<a/>', class: 'lb-next')
-            ),
-            $('<div/>', class: 'lb-loader').append(
-              $('<a/>', class: 'lb-cancel')
-            )
-          )
-        ),
-        $('<div/>', class: 'lb-dataContainer').append(
-          $('<div/>', class: 'lb-data').append(
-            $('<div/>', class: 'lb-details').append(
-              $('<span/>', class: 'lb-caption'),
-              $('<span/>', class: 'lb-number')
-            ),
-            $('<div/>', class: 'lb-closeContainer').append(
-              $('<a/>', class: 'lb-close')
-            )
-          )
-        )
-      )
-    ).appendTo $('body')
+    markup = '''
+    <div id="lightboxOverlay"></div>
+      <div id="lightbox">
+        <div class="lb-outerContainer">
+          <div class="lb-dataContainer">
+            <div class="lb-data">
+              <a href="#" class="lb-close"></a>
+              <div class="lb-nav hidden">
+                <a href="#" class="lb-prev"></a>
+                <span class="lb-center"></span>
+                <a href="#" class="lb-next"></a>
+              </div>
+              <div class="lb-details">
+                <span class="lb-caption"></span>
+                <span class="lb-number"></span>
+              </div>
+            </div>
+          </div>
+          <div class="lb-container">
+              <img class="lb-image" />
+              <div class="lb-loader"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    '''
+    $(markup).appendTo $('body')
 
     # Attach event handlers to the newly minted DOM elements
     $('#lightboxOverlay')
@@ -84,6 +83,12 @@ class Lightbox
       if $(e.target).attr('id') == 'lightbox' then @end()
       return false
       
+    # OS behaviour…
+    ($lightbox.find '.lb-prev, .lb-next, .lb-close').on 'mousedown', (e) ->
+      ($ @).addClass 'clicked'
+    ($lightbox.find '.lb-prev, .lb-next, .lb-close').on 'mouseup', (e) ->
+      ($ @).removeClass 'clicked'
+
     $lightbox.find('.lb-prev').on 'click', (e) =>
       if @options.loop && @currentImageIndex is 0
         @changeImage @album.length - 1
@@ -114,11 +119,15 @@ class Lightbox
 
     if $link.attr('rel') is 'lightbox'
       # If image is not part of a set
-      @album.push link: $link.attr('href'), title: $link.attr('title')
+      @album.push
+        link: $link.attr 'href'
+        title: $link.attr 'title'
     else
       # Image is part of a set
-      for a, i in $( $link.prop("tagName") + '[rel="' + $link.attr('rel') + '"]')
-        @album.push link: $(a).attr('href'), title: $(a).attr('title')
+      for a, i in $( $link.prop('tagName') + '[rel="' + $link.attr('rel') + '"]')
+        @album.push
+          link: $(a).attr 'href'
+          title: $(a).attr 'title'
         if $(a).attr('href') is $link.attr('href')
           imageNumber = i
 
@@ -145,17 +154,15 @@ class Lightbox
     $('#lightboxOverlay').fadeIn( @options.fadeDuration )
     
     $('.loader').fadeIn 'slow'
-    ($lightbox.find '.lb-image, .lb-nav, .lb-prev, .lb-next, .lb-dataContainer, .lb-numbers, .lb-caption').hide()
+    ($lightbox.find '.lb-image').hide()
     ($lightbox.find '.lb-outerContainer').addClass 'animating'
     
     # When image to show is preloaded, we send the width and height to sizeContainer()
-    preloader = new Image
+    preloader = new Image()
     preloader.onload = =>
       $image.attr 'src', @album[imageNumber].link
-      # Bug fix by Andy Scott 
       $image.width = preloader.width
       $image.height = preloader.height
-      # End of bug fix
       @sizeContainer preloader.width, preloader.height
 
     preloader.src = @album[imageNumber].link
@@ -166,7 +173,7 @@ class Lightbox
   sizeContainer: (imageWidth, imageHeight) ->
     $lightbox = $('#lightbox')
 
-    $outerContainer = $lightbox.find('.lb-outerContainer')
+    $outerContainer = $lightbox.find '.lb-outerContainer'
     oldWidth = $outerContainer.outerWidth()
     oldHeight = $outerContainer.outerHeight()
 
@@ -176,8 +183,11 @@ class Lightbox
     containerBottomPadding = parseInt $container.css('padding-bottom'), 10
     containerLeftPadding = parseInt $container.css('padding-left'), 10
 
+    $dataContainer = $lightbox.find '.lb-dataContainer'
+    dataContainerHeight = $dataContainer.outerHeight()
+
     newWidth = imageWidth + containerLeftPadding + containerRightPadding
-    newHeight = imageHeight + containerTopPadding + containerBottomPadding
+    newHeight = imageHeight + containerTopPadding + containerBottomPadding + dataContainerHeight
   
     # Animate just the width, just the height, or both, depending on what is different
     if newWidth != oldWidth && newHeight != oldHeight
@@ -194,11 +204,11 @@ class Lightbox
           height: newHeight
         , @options.resizeDuration, 'swing'
 
-    # Wait for resize animation to finsh before showing the image
+    # Wait for resize animation to finish before showing the image
     setTimeout =>
         $lightbox.find('.lb-dataContainer').width(newWidth)
-        $lightbox.find('.lb-prevLink').height(newHeight)
-        $lightbox.find('.lb-nextLink').height(newHeight)
+        # $lightbox.find('.lb-prevLink').height(newHeight)
+        # $lightbox.find('.lb-nextLink').height(newHeight)
         @showImage()
         return
       , @options.resizeDuration
@@ -221,26 +231,25 @@ class Lightbox
   # Display previous and next navigation if appropriate.
   updateNav: ->
     $lightbox = $('#lightbox')
-    $lightbox.find('.lb-nav').show()
-    ($lightbox.find '.lb-prev').show() if (@currentImageIndex > 0) or @options.loop
-    ($lightbox.find '.lb-next').show() if (@currentImageIndex < (@album.length - 1)) or @options.loop
+    if @album.length > 1
+      $lightbox.find('.lb-nav').show()
+    #($lightbox.find '.lb-prev').show() if (@currentImageIndex > 0) or @options.loop
+    #($lightbox.find '.lb-next').show() if (@currentImageIndex < (@album.length - 1)) or @options.loop
     return
   
-  # Display caption, image number, and closing button. 
+  # Display caption and closing button. 
   updateDetails: ->
     $lightbox = $('#lightbox')
     
-    if typeof @album[@currentImageIndex].title != 'undefined' && @album[@currentImageIndex].title != ""
-      $lightbox.find('.lb-caption')
-        .html( @album[@currentImageIndex].title)
-        .fadeIn('fast')
-
-    if @album.length > 1 and @options.useLabel
-      $lightbox.find('.lb-number')
-        .html( @options.labelImage + ' ' + (@currentImageIndex + 1) + ' ' + @options.labelOf + '  ' + @album.length)
-        .fadeIn('fast')
-    else
-      $lightbox.find('.lb-number').hide()
+    if (typeof @album[@currentImageIndex].title isnt 'undefined') and (@album[@currentImageIndex].title isnt '') and (@options.label isnt false)
+      switch @options.label
+        when 'title'
+          title = @album[@currentImageIndex].title
+          labelText = if title? then title else ''
+        when 'filename'
+          link = @album[@currentImageIndex].link
+          labelText = (link.replace /.*\/([^\/]+)$/, '$1')
+      (($lightbox.find '.lb-caption').html labelText).fadeIn 'fast'
 
     $lightbox.find('.lb-outerContainer').removeClass 'animating'
     
@@ -300,7 +309,7 @@ class Lightbox
     @disableKeyboardNav()
     $('#lightbox').fadeOut @options.fadeDuration
     $('#lightboxOverlay').fadeOut @options.fadeDuration
-    $('select, object, embed').css visibility: "visible"
+    $('select, object, embed').css visibility: 'visible'
     
 $ ->
   lightbox = new Lightbox
@@ -308,5 +317,5 @@ $ ->
     fadeDuration: 500
     labelImage: 'Image' # Change to localize to non-english language
     labelOf: 'of'
-    useLabel: true
+    label: 'filename' # false, title or filename
     loop: true
