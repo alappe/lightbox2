@@ -50,6 +50,7 @@ class LightboxOptions
     @labelImage = "Image" # Change to localize to non-english language
     @labelOf = "of"
     @useLabel = true
+    @loop = true
 
 class Lightbox
   constructor: (@options) ->
@@ -119,11 +120,17 @@ class Lightbox
       return false
       
     $lightbox.find('.lb-prev').on 'click', (e) =>
-      @changeImage @currentImageIndex - 1
+      if @options.loop && @currentImageIndex is 0
+        @changeImage @album.length - 1
+      else
+        @changeImage @currentImageIndex - 1
       return false
       
     $lightbox.find('.lb-next').on 'click', (e) =>
-      @changeImage @currentImageIndex + 1
+      if @options.loop and @currentImageIndex is (@album.length - 1)
+        @changeImage 0
+      else
+        @changeImage @currentImageIndex + 1
       return false
 
     $lightbox.find('.lb-loader, .lb-close').on 'click', (e) =>
@@ -253,8 +260,8 @@ class Lightbox
   updateNav: ->
     $lightbox = $('#lightbox')
     $lightbox.find('.lb-nav').show()
-    if @currentImageIndex > 0 then $lightbox.find('.lb-prev').show();
-    if @currentImageIndex < @album.length - 1 then $lightbox.find('.lb-next').show();
+    ($lightbox.find '.lb-prev').show() if (@currentImageIndex > 0) or @options.loop
+    ($lightbox.find '.lb-next').show() if (@currentImageIndex < (@album.length - 1)) or @options.loop
     return
   
   # Display caption, image number, and closing button. 
@@ -279,16 +286,22 @@ class Lightbox
       .fadeIn @resizeDuration
     return
     
-  # Preload previos and next images in set.  
+  # Preload previous and next images in set.  
   preloadNeighboringImages: ->
    if @album.length > @currentImageIndex + 1
-      preloadNext = new Image
-      preloadNext.src = @album[@currentImageIndex + 1].link
+     preloadNext = new Image()
+     preloadNext.src = @album[@currentImageIndex + 1].link
+   else if @options.loop and @album.length > 1
+     preloadNext = new Image()
+     preloadNext.src = @album[0].link
 
-    if @currentImageIndex > 0
-      preloadPrev = new Image
-      preloadPrev.src = @album[@currentImageIndex - 1].link
-    return
+   if @currentImageIndex > 0
+       preloadPrev = new Image()
+       preloadPrev.src = @album[@currentImageIndex - 1].link
+   else if @options.loop and @album.length > 1
+     preloadNext = new Image()
+     preloadNext.src = @album[@album.length - 1].link
+   return
 
   enableKeyboardNav: ->
     $(document).on 'keyup.keyboard', $.proxy( @keyboardAction, this)
@@ -306,14 +319,18 @@ class Lightbox
     keycode = event.keyCode
     key = String.fromCharCode(keycode).toLowerCase()
 
-    if keycode == KEYCODE_ESC || key.match(/x|o|c/)
+    if keycode is KEYCODE_ESC or key.match /x|o|c/
       @end()
-    else if key == 'p' || keycode == KEYCODE_LEFTARROW
-      if @currentImageIndex != 0
-          @changeImage @currentImageIndex - 1
-    else if key == 'n' || keycode == KEYCODE_RIGHTARROW
-      if @currentImageIndex != @album.length - 1
-          @changeImage @currentImageIndex + 1
+    else if key == 'p' or keycode is KEYCODE_LEFTARROW
+      if @currentImageIndex isnt 0
+        @changeImage @currentImageIndex - 1
+      else if @options.loop
+        @changeImage @album.length - 1
+    else if key is 'n' or keycode is KEYCODE_RIGHTARROW
+      if @currentImageIndex isnt @album.length - 1
+        @changeImage @currentImageIndex + 1
+      else if @options.loop
+        @changeImage 0
     return
 
   # Closing time. :-(
