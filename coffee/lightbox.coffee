@@ -17,15 +17,6 @@ Thanks
 # Use local alias
 $ = jQuery
 
-class LightboxOptions
-  constructor: ->
-    @resizeDuration = 700
-    @fadeDuration = 500
-    @labelImage = "Image" # Change to localize to non-english language
-    @labelOf = "of"
-    @useLabel = true
-    @loop = true
-
 class Lightbox
   constructor: (@options) ->
     @album = []
@@ -315,5 +306,10 @@ class Lightbox
     $('select, object, embed').css visibility: "visible"
     
 $ ->
-  options = new LightboxOptions
-  lightbox = new Lightbox options
+  lightbox = new Lightbox
+    resizeDuration: 700
+    fadeDuration: 500
+    labelImage: 'Image' # Change to localize to non-english language
+    labelOf: 'of'
+    useLabel: true
+    loop: true
