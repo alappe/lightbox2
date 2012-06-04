@@ -48,20 +48,17 @@ class LightboxOptions
     @resizeDuration = 700
     @fadeDuration = 500
     @labelImage = "Image" # Change to localize to non-english language
-    @labelOf = "of"       
-
+    @labelOf = "of"
 
 class Lightbox
   constructor: (@options) ->
     @album = []
     @currentImageIndex = undefined
     @init()
-    
   
   init: ->
     @enable()
     @build()
-
 
   # Loop through anchors and areamaps looking for rel attributes that contain 'lightbox'
   # On clicking these, start lightbox.
@@ -69,7 +66,6 @@ class Lightbox
     $('body').on 'click', 'a[rel^=lightbox], area[rel^=lightbox]', (e) =>
       @start $(e.currentTarget)
       false
-
 
   # Build html for the lightbox and the overlay.
   # Attach event handlers to the new DOM elements. click click click
@@ -89,7 +85,7 @@ class Lightbox
           )
         ),
         $('<div/>', class: 'lb-dataContainer').append(
-          $('<div/>', class: 'lb-data').append(          
+          $('<div/>', class: 'lb-data').append(
             $('<div/>', class: 'lb-details').append(
               $('<span/>', class: 'lb-caption'),
               $('<span/>', class: 'lb-number')
@@ -167,12 +163,11 @@ class Lightbox
       
     @changeImage(imageNumber)
     return
-  
 
   # Hide most UI elements in preparation for the animated resizing of the lightbox.
   changeImage: (imageNumber) ->
     
-    @disableKeyboardNav()    
+    @disableKeyboardNav()
     $lightbox = $('#lightbox')
     $image = $lightbox.find('.lb-image')
 
@@ -195,8 +190,7 @@ class Lightbox
 
     preloader.src = @album[imageNumber].link
     @currentImageIndex = imageNumber
-    return  
-
+    return
 
   # Animate the size of the lightbox to fit the image we are showing
   sizeContainer: (imageWidth, imageHeight) ->
@@ -210,7 +204,7 @@ class Lightbox
     containerTopPadding = parseInt $container.css('padding-top'), 10
     containerRightPadding = parseInt $container.css('padding-right'), 10
     containerBottomPadding = parseInt $container.css('padding-bottom'), 10
-    containerLeftPadding = parseInt $container.css('padding-left'), 10        
+    containerLeftPadding = parseInt $container.css('padding-left'), 10
 
     newWidth = imageWidth + containerLeftPadding + containerRightPadding
     newHeight = imageHeight + containerTopPadding + containerBottomPadding
@@ -237,10 +231,9 @@ class Lightbox
       $lightbox.find('.lb-nextLink').height(newHeight)
       @showImage()
       return
-    , @options.resizeDuration 
+    , @options.resizeDuration
     
     return
-  
   
   # Display the image and it's details and begin preload neighboring images.
   showImage: ->
@@ -254,7 +247,6 @@ class Lightbox
     @enableKeyboardNav()
 
     return
-
 
   # Display previous and next navigation if appropriate.
   updateNav: ->
@@ -277,7 +269,7 @@ class Lightbox
       $lightbox.find('.lb-number')
         .html( @options.labelImage + ' ' + (@currentImageIndex + 1) + ' ' + @options.labelOf + '  ' + @album.length)
         .fadeIn('fast')
-    else 
+    else
       $lightbox.find('.lb-number').hide()
 
     $lightbox.find('.lb-outerContainer').removeClass 'animating'
@@ -285,7 +277,6 @@ class Lightbox
     $lightbox.find('.lb-dataContainer')
       .fadeIn @resizeDuration
     return
-    
     
   # Preload previos and next images in set.  
   preloadNeighboringImages: ->
@@ -295,20 +286,17 @@ class Lightbox
 
     if @currentImageIndex > 0
       preloadPrev = new Image
-      preloadPrev.src = @album[@currentImageIndex - 1].link    
+      preloadPrev.src = @album[@currentImageIndex - 1].link
     return
-
 
   enableKeyboardNav: ->
     $(document).on 'keyup.keyboard', $.proxy( @keyboardAction, this)
     return
-
   
   disableKeyboardNav: ->
     $(document).off '.keyboard'
     return
   
-    
   keyboardAction: (event) ->
     KEYCODE_ESC = 27
     KEYCODE_LEFTARROW = 37
@@ -327,14 +315,12 @@ class Lightbox
           @changeImage @currentImageIndex + 1
     return
 
-  
   # Closing time. :-(
   end: ->
     @disableKeyboardNav()
     $('#lightbox').fadeOut @options.fadeDuration
     $('#lightboxOverlay').fadeOut @options.fadeDuration
     $('select, object, embed').css visibility: "visible"
-        
     
 $ ->
   options = new LightboxOptions
