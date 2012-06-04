@@ -49,6 +49,7 @@ class LightboxOptions
     @fadeDuration = 500
     @labelImage = "Image" # Change to localize to non-english language
     @labelOf = "of"
+    @useLabel = true
 
 class Lightbox
   constructor: (@options) ->
@@ -265,7 +266,7 @@ class Lightbox
         .html( @album[@currentImageIndex].title)
         .fadeIn('fast')
 
-    if @album.length > 1
+    if @album.length > 1 and @options.useLabel
       $lightbox.find('.lb-number')
         .html( @options.labelImage + ' ' + (@currentImageIndex + 1) + ' ' + @options.labelOf + '  ' + @album.length)
         .fadeIn('fast')
